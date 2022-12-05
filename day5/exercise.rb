@@ -1,49 +1,39 @@
 file = File.open('./input.txt')
 
-crates = []
+diagram, instructions = file.read.split("\n\n")
 
-file.readlines.each do |line|
-  if line.include?('[')
-    cursor = 1
+diagram_part1 = diagram.split("\n").each_with_object([]) do |line, d|
+  next d unless line.include?('[')
 
-    (line.length / 4).times do
-      crate_idx = cursor / 4
-      crates[crate_idx] = [] unless crates[crate_idx]
-      crates[crate_idx].prepend(line[cursor]) unless line[cursor] == "\s"
-      cursor += 4
-    end
-  elsif line.include?('move')
-    amount, from, to = line.scan(/\d+/).map(&:to_i)
-
-    crates[to - 1].push(*crates[from - 1].pop(amount).reverse)
+  (1 + line.length / 4).times do |idx|
+    char_idx = 1 + idx * 4
+    d[idx] = [] unless d[idx]
+    d[idx].prepend(line[char_idx]) unless line[char_idx] == "\s"
   end
+end
+
+instructions.split("\n").each do |line|
+  amount, from, to = line.scan(/\d+/).map(&:to_i)
+  diagram_part1[to - 1].push(*diagram_part1[from - 1].pop(amount).reverse)
 end
 
 # WCZTHTMPS
-top_layer = crates.map { |c| c[-1] }
-puts "Part 1: #{top_layer.join('')}"
+puts "Part 1: #{diagram_part1.map { |d| d[-1] }.join('')}"
 
-file.rewind
+diagram_part2 = diagram.split("\n").each_with_object([]) do |line, d|
+  next d unless line.include?('[')
 
-crates2 = []
-
-file.readlines.each do |line|
-  if line.include?('[')
-    cursor = 1
-
-    (line.length / 4).times do
-      crate_idx = cursor / 4
-      crates2[crate_idx] = [] unless crates2[crate_idx]
-      crates2[crate_idx].prepend(line[cursor]) unless line[cursor] == "\s"
-      cursor += 4
-    end
-  elsif line.include?('move')
-    amount, from, to = line.scan(/\d+/).map(&:to_i)
-
-    crates2[to - 1].push(*crates2[from - 1].pop(amount))
+  (1 + line.length / 4).times do |idx|
+    char_idx = 1 + idx * 4
+    d[idx] = [] unless d[idx]
+    d[idx].prepend(line[char_idx]) unless line[char_idx] == "\s"
   end
 end
 
+instructions.split("\n").each do |line|
+  amount, from, to = line.scan(/\d+/).map(&:to_i)
+  diagram_part2[to - 1].push(*diagram_part2[from - 1].pop(amount))
+end
+
 # BLSGJSDTS
-top_layer2 = crates2.map { |c| c[-1] }
-puts "Part 2: #{top_layer2.join('')}"
+puts "Part 1: #{diagram_part2.map { |d| d[-1] }.join('')}"
