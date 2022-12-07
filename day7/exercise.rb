@@ -1,6 +1,6 @@
 file = File.open('./input.txt')
 
-THRESHHOLD = 100_000
+THRESHOLD = 100_000
 
 class Node
   attr_accessor :name, :size, :nodes, :parent
@@ -24,12 +24,27 @@ class Node
     @size
   end
 
+  def sum_of_nodes_below_threshold_recursive
+    return 0 if @nodes.empty?
+
+    (@size <= THRESHOLD ? @size : 0) + @nodes.reduce(0) do |acc, node|
+      acc + node.sum_of_nodes_below_threshold_recursive
+    end
+  end
+
   def sum_of_nodes_below_threshold
     return 0 if @nodes.empty?
 
-    (@size <= THRESHHOLD ? @size : 0) + @nodes.reduce(0) do |acc, node|
-      acc + node.sum_of_nodes_below_threshold
+    sum = @size <= THRESHOLD ? @size : 0
+    nodes = [self]
+
+    until nodes.empty?
+      node = nodes.pop
+      sum += node.size if node.size <= THRESHOLD && !node.nodes.empty?
+      nodes.concat(node.nodes)
     end
+
+    sum
   end
 end
 
@@ -62,6 +77,8 @@ end
 
 root.calculate_sizes
 
+# 1490523
+puts "Part 1 (recursively): #{root.sum_of_nodes_below_threshold_recursive}"
 puts "Part 1: #{root.sum_of_nodes_below_threshold}"
 
 TOTAL_DISK_SPACE = 70_000_000
@@ -79,4 +96,5 @@ end
 
 nodes_gt(root)
 
-puts "Part 2: #{$candidate_nodes.sort_by(&:size)[0].size}"
+# 12390492
+puts "Part 2: #{$candidate_nodes.min_by(&:size).size}"
